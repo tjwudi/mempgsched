@@ -3,13 +3,18 @@ $(function() {
       logic = {},
       ins = {
         insNext: null,
-        insCur: 0,
+        insCur: null,
         usage: null
+      },
+      mem = {
+        pages: [/* { num: 页编号, timestamp: 装入时间戳 } */],
+        pageCapacity: 4,
+        pageMissing: 0 /* 缺页次数 */
       };
 
   var config = {
     insCount: 320,
-    probJump: 0.1
+    probJump: 0.5
   };
 
   /**
@@ -28,11 +33,10 @@ $(function() {
 
   /**
    * 寻找下一条未使用指令的编号
-   * @param  {int} from 从哪一条指令寻找起
    * @return {integer|null}  下一条未使用的指令，如不存在返回null
    */
-  ins._nextUnused = function(from) {
-    var i = from + 1;
+  ins._nextUnused = function() {
+    var i = ins.insCur + 1;
     for(; i < config.insCount; i ++) {
       if (!ins.usage[i]) {
         return i;
@@ -43,11 +47,10 @@ $(function() {
 
   /**
    * 寻找上一条未使用指令的编号
-   * @param  {int} from 从哪一条指令寻找起
    * @return {integer|null}  上一条未使用的指令，如不存在返回null
    */
-  ins._lastUnused = function(from) {
-    var i = from - 1;
+  ins._lastUnused = function() {
+    var i = ins.insCur - 1;
     for(; i >= 0; i --) {
       if (!ins.usage[i]) {
         return i;
@@ -62,7 +65,7 @@ $(function() {
    */
   ins.findArb = function() {
     var base = Math.floor( Math.random() * 320 );
-    if (ins.usage[base]) {
+    if (!ins.usage[base]) {
       return base;
     }
     else {
@@ -98,8 +101,14 @@ $(function() {
    * 生成下一条要执行的指令编号
    */
   logic.genInsNext = function() {
-    var lastUnused = ins._lastUnused(ins.insCur),
-        nextUnused = ins._nextUnused(ins.insCur);
+    if (ins.insCur === null) {
+      // 初始指令编号为0
+      ins.insNext = 0;
+      return;
+    }
+
+    var lastUnused = ins._lastUnused(),
+        nextUnused = ins._nextUnused();
     if (lastUnused === null && nextUnused === null) {
       // 指令全部调用完毕，next设置为-1
       ins.insNext = -1;
@@ -118,9 +127,87 @@ $(function() {
     }
   };
 
-  window.runTest = function() {
-    ins.usage = tool.makeArray(false, config.insCount);
-    ins.usage[ins.insCur] = true;
+  /**
+   * 使用指令
+   */
+  logic.hunt = function() {
+    var page = mem.pageOf(ins.insCur);
+    mem.hunt(page);
   };
 
+  /**
+   * 获取一条指令对应的页编号
+   * @param  {integer} ins 指令编号
+   * @return {integer}     页面编号
+   */ 
+  mem.pageOf = function(ins) {
+    return Math.floor( ins / 10 );
+  };
+
+  /**
+   * 检查当前内存中是否存在此页面
+   * @param  {[type]}  page [description]
+   * @return {Boolean}      [description]
+   */
+  mem.hasPage = function(page) {
+    for (var i = 0; i < mem.pageCapacity; i ++) {
+      if (!!mem.pages[i] && mem.pages[i].num === page) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /**
+   * 获得当前装入页面数量
+   * @return {[type]} [description]
+   */
+  mem.getPageSize = function() {
+    var result = 0;
+    for (var i = 0; i < mem.pageCapacity; i ++) {
+      if (!!mem.pages[i]) {
+        result ++;
+      }
+    }
+    return result;
+  }; 
+
+  /**
+   * 获取要替换的页面的编号
+   */
+  mem.getOutIndex = function() {
+    var earliest = mem.pages[0],
+        earliestIndex = 0;
+    for (var i = 1; i < mem.pageCapacity; i ++) {
+      if (mem.pages[i].timestamp < earliest.timestamp) {
+        earliest = mem.pages[i];
+        earliestIndex = i;
+      }
+    }
+    return earliestIndex;
+  };
+
+  /**
+   * 调用页面
+   * @param  {integer} page 需要调用的页编号
+   */
+  mem.hunt = function(page) {
+    if (!mem.hasPage(page)) {
+      mem.pageMissing ++;
+      var pageSize = mem.getPageSize(), outIndex;
+      if (pageSize < mem.pageCapacity) {
+        outIndex = pageSize;
+      }
+      else {
+        outIndex = mem.getOutIndex();
+      }
+      mem.pages[outIndex] = { num: page, timestamp: new Date };
+    };
+  };
+
+  ins.usage = tool.makeArray(false, config.insCount);
+  // 第一条指令为编号0指令，将其标识为已使用
+  ins.usage[ins.insCur] = true;
+
 });
+
