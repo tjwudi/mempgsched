@@ -10,7 +10,8 @@ $(function() {
         pages: [/* { num: 页编号, timestamp: 装入时间戳 } */],
         pageCapacity: 4,
         pageMissing: 0 /* 缺页次数 */
-      };
+      },
+      ui = {};
 
   var config = {
     insCount: 320,
@@ -205,9 +206,40 @@ $(function() {
     };
   };
 
+  /**
+   * 刷新数据
+   * @return {[type]} [description]
+   */
+  ui.refresh = function() {
+
+  };
+
+  /**
+   * 输出至面板
+   * @param  {[type]} str [description]
+   * @return {[type]}     [description]
+   */
+  ui.outputConsole = function(str) {
+
+  };
+
+  // 初始化指令标识
   ins.usage = tool.makeArray(false, config.insCount);
-  // 第一条指令为编号0指令，将其标识为已使用
-  ins.usage[ins.insCur] = true;
+  logic.genInsNext();
+
+  window.work = function() {
+    ins.insCur = ins.insNext;
+    console.log('Ins: ' + ins.insCur);
+    mem.hunt(mem.pageOf(ins.insCur));
+    console.log(JSON.stringify(mem.pages));
+    ui.refresh();
+    logic.genInsNext();
+
+    if (ins.insNext !== -1) {
+      setTimeout(window.work, 3000);
+    }
+  }
+
 
 });
 
