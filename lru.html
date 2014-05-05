@@ -1,0 +1,99 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.7.1.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header>
+            <h1>LRU（最近最久未使用）算法调度页面</h1>
+            <h4>同济大学软件学院 吴迪（学号：1253021）</h4>
+            <hr>  
+        </header>
+
+        <form action="">
+            <button id="btn-run">开始运行</button>
+        </form>
+
+        <section>
+            <header>
+                <h3>当前内存页面</h3>
+            </header>
+            <div>
+                <table border="1">
+                    <tr>
+                        <th>内存块</th>
+                        <th>页面号</th>
+                        <th>对应指令编号范围</th>
+                    </tr>
+                    <tr id="page-0">
+                        <td class="addr">0</td>
+                        <td class="pid">N/A</td>
+                        <td class="range">N/A</td>
+                    </tr>
+                    <tr id="page-1">
+                        <td class="addr">1</td>
+                        <td class="pid">N/A</td>
+                        <td class="range">N/A</td>
+                    </tr>
+                    <tr id="page-2">
+                        <td class="addr">2</td>
+                        <td class="pid">N/A</td>
+                        <td class="range">N/A</td>
+                    </tr>
+                    <tr id="page-3">
+                        <td class="addr">3</td>
+                        <td class="pid">N/A</td>
+                        <td class="range">N/A</td>
+                    </tr>
+                </table>
+            </div>
+            <footer>
+                <strong>缺页率：</strong><span id="page-missing">0</span>%.
+            </footer>
+        </section>
+
+        <section>
+            <header>
+                <h3>指令调度面板</h3>
+            </header>
+            <p>下条指令编号：<span id="next-ins">N/A</span></p>
+        </section>
+
+        <section>
+            <header>
+                <h3>输出面板</h3>
+            </header>
+            <textarea name="console" id="console" cols="40" rows="10" disabled="true"></textarea>
+        </section>
+
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
+        <script src="js/plugins.js"></script>
+        <script src="js/lru.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>
