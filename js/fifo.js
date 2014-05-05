@@ -9,13 +9,19 @@ $(function() {
       mem = {
         pages: [/* { num: 页编号, timestamp: 装入时间戳 } */],
         pageCapacity: 4,
-        pageMissing: 0 /* 缺页次数 */
+        pageMissing: 0 /* 缺页次数 */,
+        huntCount: 0 /* 寻指令次数 */
       },
-      ui = {};
+      ui = {
+        $console: $('#console'),
+        $pageMissing: $('#page-missing'),
+        $nextIns: $('#next-ins'),
+        pages: [/* jdom: jQuery DOM */]
+      };
 
   var config = {
     insCount: 320,
-    probJump: 0.5
+    probJump: 0.1
   };
 
   /**
@@ -137,10 +143,26 @@ $(function() {
   };
 
   /**
+   * 开始运行全部程序
+   */
+  logic.run = function() {
+    ins.insCur = ins.insNext;
+    ins.usage[ins.insCur] = true;
+    ui.outputConsole('准备载入【指令'+ins.insCur+'】');
+    mem.hunt(mem.pageOf(ins.insCur));
+    logic.genInsNext();
+    ui.setInsNext();
+
+    if (ins.insNext !== -1) {
+      setTimeout(logic.run, 20);
+    }
+  };
+
+  /**
    * 获取一条指令对应的页编号
    * @param  {integer} ins 指令编号
    * @return {integer}     页面编号
-   */ 
+   */
   mem.pageOf = function(ins) {
     return Math.floor( ins / 10 );
   };
@@ -171,7 +193,7 @@ $(function() {
       }
     }
     return result;
-  }; 
+  };
 
   /**
    * 获取要替换的页面的编号
@@ -193,7 +215,10 @@ $(function() {
    * @param  {integer} page 需要调用的页编号
    */
   mem.hunt = function(page) {
+    mem.huntCount ++;
+    ui.outputConsole('查找页面' + page);
     if (!mem.hasPage(page)) {
+      ui.outputConsole('发生缺页');
       mem.pageMissing ++;
       var pageSize = mem.getPageSize(), outIndex;
       if (pageSize < mem.pageCapacity) {
@@ -202,16 +227,14 @@ $(function() {
       else {
         outIndex = mem.getOutIndex();
       }
-      mem.pages[outIndex] = { num: page, timestamp: new Date };
-    };
-  };
-
-  /**
-   * 刷新数据
-   * @return {[type]} [description]
-   */
-  ui.refresh = function() {
-
+      mem.pages[outIndex] = { num: page, timestamp: new Date() };
+      ui.outputConsole('页面已经调到内存空间' + outIndex);
+      ui.setPage(outIndex, page);  // 更新UI内存页
+    }
+    else {
+      ui.outputConsole('无缺页发生');
+    }
+    ui.setPageMissing(); // 更新UI缺页率
   };
 
   /**
@@ -220,26 +243,53 @@ $(function() {
    * @return {[type]}     [description]
    */
   ui.outputConsole = function(str) {
+    ui.$console.val(str + '\n' + ui.$console.val());
+  };
 
+  /**
+   * 初始化界面元素绑定
+   */
+  ui.init = function() {
+    for (var i = 0; i < mem.pageCapacity; i ++) {
+      ui.pages[i] = $('#page-' + i);
+    }
+  };
+
+  /**
+   * 将第index块设置为第page页
+   * @param {integer} index 块编号
+   * @param {integer} page  页编号
+   */
+  ui.setPage = function(index, page) {
+    ui.pages[index].find('.pid').text(page);
+    ui.pages[index].find('.range').text((page * 10) + ' ~ ' + (page * 10 + 9));
+  };
+
+  /**
+   * 更新缺页率
+   */
+  ui.setPageMissing = function() {
+    ui.$pageMissing.text(mem.pageMissing + '/' + mem.huntCount + ' = ' + mem.pageMissing * 100 / mem.huntCount);
+  };
+
+  /**
+   * 更新下条指令编号
+   */
+  ui.setInsNext = function() {
+    ui.$nextIns.text(ins.insNext);
   };
 
   // 初始化指令标识
+  ui.init();
   ins.usage = tool.makeArray(false, config.insCount);
   logic.genInsNext();
+  ui.setInsNext();
 
-  window.work = function() {
-    ins.insCur = ins.insNext;
-    console.log('Ins: ' + ins.insCur);
-    mem.hunt(mem.pageOf(ins.insCur));
-    console.log(JSON.stringify(mem.pages));
-    ui.refresh();
-    logic.genInsNext();
-
-    if (ins.insNext !== -1) {
-      setTimeout(window.work, 3000);
-    }
-  }
-
+  $('#btn-run').click(function(event) {
+    event.preventDefault();
+    $(this).attr('disabled', true);
+    logic.run();
+  });
 
 });
 

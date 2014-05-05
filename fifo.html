@@ -24,6 +24,10 @@
             <hr>  
         </header>
 
+        <form action="">
+            <button id="btn-run">开始运行</button>
+        </form>
+
         <section>
             <header>
                 <h3>当前内存页面</h3>
@@ -35,28 +39,31 @@
                         <th>页面号</th>
                         <th>对应指令编号范围</th>
                     </tr>
-                    <tr id="mem-1">
+                    <tr id="page-0">
                         <td class="addr">0</td>
                         <td class="pid">N/A</td>
                         <td class="range">N/A</td>
                     </tr>
-                    <tr id="mem-2">
+                    <tr id="page-1">
                         <td class="addr">1</td>
                         <td class="pid">N/A</td>
                         <td class="range">N/A</td>
                     </tr>
-                    <tr id="mem-3">
+                    <tr id="page-2">
                         <td class="addr">2</td>
                         <td class="pid">N/A</td>
                         <td class="range">N/A</td>
                     </tr>
-                    <tr id="mem-4">
+                    <tr id="page-3">
                         <td class="addr">3</td>
                         <td class="pid">N/A</td>
                         <td class="range">N/A</td>
                     </tr>
                 </table>
             </div>
+            <footer>
+                <strong>缺页率：</strong><span id="page-missing">0</span>%.
+            </footer>
         </section>
 
         <section>
@@ -73,18 +80,6 @@
             <textarea name="console" id="console" cols="40" rows="10" disabled="true"></textarea>
         </section>
 
-        <form>
-            <header>
-                <h3>动画速度控制</h3>
-            </header>
-            <div class="form-group">
-                <label for="interval">每帧毫秒数：</label>
-                <input type="text" id="interval" name="interval" value="2000">
-            </div>
-            <div class="form-group">
-                <button>修改</button>
-            </div>
-        </form>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
